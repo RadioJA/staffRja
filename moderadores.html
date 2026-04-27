@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Moderadores - RJA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="img/rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="panel_principal.html">Inicio</a></li>
+                    <li><a href="#" class="active">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="dh.html">Dh</a></li>
+                    <li><a href="dg.html">DG</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Registro de Moderadores</h1>
+                <p>Complete la información para dar de alta a un nuevo moderador.</p>
+            </header>
+            
+            <div class="form-card">
+                <form id="mod-form" class="grid-form">
+                    <div class="input-group">
+                        <label for="categoria">Categoría</label>
+                        <select id="categoria" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Lunes a Viernes">Lunes a Viernes</option>
+                            <option value="Sábados y Domingos">Sábados y Domingos</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Días de Horario</label>
+                        <div class="checkbox-group" id="mod-dias-container">
+                            <label><input type="checkbox" name="mod-dia" value="Lunes"> Lun</label>
+                            <label><input type="checkbox" name="mod-dia" value="Martes"> Mar</label>
+                            <label><input type="checkbox" name="mod-dia" value="Miércoles"> Mié</label>
+                            <label><input type="checkbox" name="mod-dia" value="Jueves"> Jue</label>
+                            <label><input type="checkbox" name="mod-dia" value="Viernes"> Vie</label>
+                            <label><input type="checkbox" name="mod-dia" value="Sábado"> Sáb</label>
+                            <label><input type="checkbox" name="mod-dia" value="Domingo"> Dom</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="hora-inicio">Hora de Inicio</label>
+                        <div class="time-input-container">
+                            <input type="time" id="hora-inicio" required>
+                            <select id="ampm-inicio" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="hora-fin">Hora Final</label>
+                        <div class="time-input-container">
+                            <input type="time" id="hora-fin" required>
+                            <select id="ampm-fin" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="nombre-mod">Nombre del Moderador</label>
+                        <input type="text" id="nombre-mod" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="pais">País</label>
+                        <input type="text" id="pais" placeholder="País de origen" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="fecha-ingreso">Fecha de Ingreso a la Radio</label>
+                        <input type="date" id="fecha-ingreso" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="fecha-cumple">Fecha de Cumpleaños</label>
+                        <input type="date" id="fecha-cumple" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="director-horario">Nombre del Director de Horario</label>
+                        <input type="text" id="director-horario" placeholder="Nombre del director" required>
+                    </div>
+                    <div class="input-group" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn-main">Registrar Moderador</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <h2>Moderadores Registrados</h2>
+                    <div class="filter-container">
+                        <select id="filter-categoria">
+                            <option value="all">Todas las categorías</option>
+                            <option value="Lunes a Viernes">Lunes a Viernes</option>
+                            <option value="Sábados y Domingos">Sábados y Domingos</option>
+                        </select>
+                        <button id="btn-download" class="btn-edit">Descargar</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabla-moderadores">
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Día</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Nombre</th>
+                                <th>País</th>
+                                <th>Ingreso</th>
+                                <th>Cumpleaños</th>
+                                <th>Director</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Librerías para exportar a PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>

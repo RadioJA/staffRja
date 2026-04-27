@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Principal - RJA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="img/rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="#" class="active">Inicio</a></li>
+                    <li><a href="moderadores.html">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="dh.html">Dh</a></li>
+                    <li><a href="dg.html">DG</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Bienvenido al Sistema RJA</h1>
+                <p>Has iniciado sesión correctamente.</p>
+            </header>
+            <div class="dashboard-grid">
+                <a href="moderadores.html" class="dash-card">Moderadores</a>
+                <a href="locutores.html" class="dash-card">Locutores</a>
+                <a href="dh.html" class="dash-card">Directores (Dh)</a>
+                <a href="dg.html" class="dash-card">Directiva (DG)</a>
+                <a href="reportes.html" class="dash-card">Reportes Diarios</a>
+                <a href="usuarios.html" id="dash-usuarios" class="dash-card admin-card" style="display:none;">Gestión de Usuarios</a>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>

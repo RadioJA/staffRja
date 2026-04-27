@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - RJA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="img/rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="panel_principal.html">Inicio</a></li>
+                    <li><a href="moderadores.html">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="dh.html">Dh</a></li>
+                    <li><a href="dg.html">DG</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="#" class="active">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Gestión de Usuarios</h1>
+                <p>Administre los roles de los usuarios registrados.</p>
+            </header>
+            
+            <div class="table-card">
+                <div class="table-header">
+                    <h2>Usuarios Registrados</h2>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabla-usuarios">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Fecha Registro</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>

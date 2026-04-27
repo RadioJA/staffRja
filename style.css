@@ -1,0 +1,350 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f7f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.auth-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.logo-container {
+    margin-bottom: 1.5rem;
+}
+
+.logo {
+    max-width: 120px; /* Ajusta según el tamaño de tu logo */
+    height: auto;
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.4rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: #007bff;
+}
+
+.btn-main {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-main:hover {
+    background-color: #0056b3;
+}
+
+.switch-text {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.switch-text a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.hidden {
+    display: none;
+}
+
+/* --- Estilos para el Panel Principal --- */
+.panel-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    align-items: stretch;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: #1a252f;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1rem;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.logo-panel {
+    background-color: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-small {
+    max-width: 160px;
+    height: auto;
+}
+
+.menu {
+    flex-grow: 1;
+}
+
+.menu ul {
+    list-style: none;
+}
+
+.menu ul li {
+    margin-bottom: 0.5rem;
+}
+
+.menu ul li a {
+    color: #bdc3c7;
+    text-decoration: none;
+    padding: 0.8rem 1rem;
+    display: block;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.menu ul li a:hover, .menu ul li a.active {
+    background-color: #34495e;
+    color: white;
+}
+
+.logout-btn {
+    margin-top: auto;
+    text-align: center;
+    padding: 0.8rem;
+    background-color: #e74c3c;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 3rem;
+    background-color: #f4f7f6;
+    overflow-y: auto;
+}
+
+.form-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-top: 2rem;
+}
+
+.grid-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    text-align: left;
+}
+
+.grid-form select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    background-color: white;
+}
+
+@media (max-width: 768px) {
+    .grid-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+.table-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-top: 2rem;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+table th, table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+table th {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.time-input-container {
+    display: flex;
+    gap: 0.5rem;
+}
+.time-input-container input {
+    flex: 2;
+}
+.time-input-container select {
+    flex: 1;
+}
+
+.btn-edit, .btn-delete {
+    padding: 0.5rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: white;
+    transition: background 0.3s;
+}
+
+.btn-edit {
+    background-color: #27ae60;
+    margin-right: 0.5rem;
+}
+
+.btn-edit:hover {
+    background-color: #219150;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-container select {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    outline: none;
+}
+
+#btn-download {
+    margin-left: 0.5rem;
+    margin-right: 0;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    background: white;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-top: 0.4rem;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: #333;
+}
+
+/* --- Estilos para la Cuadrícula del Dashboard --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.dash-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none;
+    color: #2c3e50;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+}
+
+.dash-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    background-color: #f8f9fa;
+}
+
+.admin-card {
+    border: 2px solid #e67e22;
+    color: #e67e22;
+}

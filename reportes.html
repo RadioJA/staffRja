@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes Diarios - RJA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="img/rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="panel_principal.html">Inicio</a></li>
+                    <li><a href="moderadores.html">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="dh.html">Dh</a></li>
+                    <li><a href="dg.html">DG</a></li>
+                    <li><a href="#" class="active">Reportes</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Reportes de Programación</h1>
+                <p>Complete el reporte diario de su turno.</p>
+            </header>
+            
+            <div class="form-card">
+                <div id="calc-info" style="margin-bottom: 1.5rem; padding: 1rem; background: #e8f4fd; border-left: 5px solid #007bff; border-radius: 4px;">
+                    <strong>Cálculo de cumplimiento:</strong> <span id="reportes-esperados">Seleccione mes y horario para calcular...</span>
+                </div>
+                <form id="rep-form" class="grid-form">
+                    <div class="input-group">
+                        <label for="rep-mes">Mes</label>
+                        <select id="rep-mes" required>
+                            <option value="">Seleccione mes...</option>
+                            <option value="0">Enero</option><option value="1">Febrero</option>
+                            <option value="2">Marzo</option><option value="3">Abril</option>
+                            <option value="4">Mayo</option><option value="5">Junio</option>
+                            <option value="6">Julio</option><option value="7">Agosto</option>
+                            <option value="8">Septiembre</option><option value="9">Octubre</option>
+                            <option value="10">Noviembre</option><option value="11">Diciembre</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-categoria">Categoría</label>
+                        <select id="rep-categoria" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Lunes a Viernes">Lunes a Viernes</option>
+                            <option value="Sábados y Domingos">Sábados y Domingos</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Días de Horario</label>
+                        <div class="checkbox-group" id="rep-dias-container">
+                            <label><input type="checkbox" name="rep-dia" value="Lunes"> Lun</label>
+                            <label><input type="checkbox" name="rep-dia" value="Martes"> Mar</label>
+                            <label><input type="checkbox" name="rep-dia" value="Miércoles"> Mié</label>
+                            <label><input type="checkbox" name="rep-dia" value="Jueves"> Jue</label>
+                            <label><input type="checkbox" name="rep-dia" value="Viernes"> Vie</label>
+                            <label><input type="checkbox" name="rep-dia" value="Sábado"> Sáb</label>
+                            <label><input type="checkbox" name="rep-dia" value="Domingo"> Dom</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Horario (Inicio - Fin)</label>
+                        <div class="time-input-container">
+                            <input type="time" id="rep-hora-inicio" required>
+                            <input type="time" id="rep-hora-fin" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-director">Nombre del Director</label>
+                        <select id="rep-director" required><option value="">Cargando...</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-estuvo">¿Estuviste hoy?</label>
+                        <select id="rep-estuvo" required>
+                            <option value="Sí">Sí</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="input-group" id="group-cubrio" style="display:none;">
+                        <label for="rep-cubrio">¿Quién te cubrió?</label>
+                        <input type="text" id="rep-cubrio" placeholder="Nombre de quien cubrió">
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-loc1">Locutor 1ra Hora</label>
+                        <select id="rep-loc1" required><option value="">Cargando...</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-loc2">Locutor 2da Hora</label>
+                        <select id="rep-loc2" required><option value="">Cargando...</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-whatsapp">Moderador WhatsApp</label>
+                        <select id="rep-whatsapp" required><option value="">Cargando...</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-chat">Moderador Chat</label>
+                        <select id="rep-chat" required><option value="">Cargando...</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-redes">Publicó en Redes Sociales</label>
+                        <select id="rep-redes" required><option value="">Cargando...</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="rep-fecha">Fecha del Reporte</label>
+                        <input type="date" id="rep-fecha" required>
+                    </div>
+                    <div class="input-group" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn-main">Enviar Reporte</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <h2>Historial de Reportes</h2>
+                    <div class="filter-container">
+                        <select id="filter-categoria-rep">
+                            <option value="all">Todas las categorías</option>
+                            <option value="Lunes a Viernes">Lunes a Viernes</option>
+                            <option value="Sábados y Domingos">Sábados y Domingos</option>
+                        </select>
+                        <button id="btn-download-rep" class="btn-edit">Descargar PDF</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabla-reportes">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Director</th>
+                                <th>¿Estuvo?</th>
+                                <th>Locutores</th>
+                                <th>Redes/Chat</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>

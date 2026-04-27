@@ -1,0 +1,6 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Carpetas de extensiones o temporales
+.vscode/

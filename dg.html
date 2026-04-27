@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro DG - RJA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="img/rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="panel_principal.html">Inicio</a></li>
+                    <li><a href="moderadores.html">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="dh.html">Dh</a></li>
+                    <li><a href="#" class="active">DG</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Registro de Directiva General (DG)</h1>
+                <p>Gestione los cargos directivos seleccionando miembros de las otras áreas.</p>
+            </header>
+            
+            <div class="form-card">
+                <form id="dg-form" class="grid-form">
+                    <div class="input-group">
+                        <label for="dg-nombre">Nombre (Miembros Registrados)</label>
+                        <select id="dg-nombre" required>
+                            <option value="">Seleccione un miembro...</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="dg-cargo">Cargo</label>
+                        <input type="text" id="dg-cargo" placeholder="Ej: Director General" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="dg-pais">País</label>
+                        <input type="text" id="dg-pais" placeholder="País de origen" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="dg-fecha-ingreso">Fecha de Ingreso a la Radio</label>
+                        <input type="date" id="dg-fecha-ingreso" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="dg-fecha-cumple">Fecha de Cumpleaños</label>
+                        <input type="date" id="dg-fecha-cumple" required>
+                    </div>
+                    <div class="input-group" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn-main">Registrar en DG</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <h2>Directiva Registrada</h2>
+                    <button id="btn-download-dg" class="btn-edit">Descargar PDF</button>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabla-dg">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Cargo</th>
+                                <th>País</th>
+                                <th>Ingreso</th>
+                                <th>Cumpleaños</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>

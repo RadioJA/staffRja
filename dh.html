@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Dh - RJA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="img/rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="panel_principal.html">Inicio</a></li>
+                    <li><a href="moderadores.html">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="#" class="active">Dh</a></li>
+                    <li><a href="dg.html">DG</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Registro de Directores de Horario (Dh)</h1>
+                <p>Gestione la información de los directores responsables de los horarios.</p>
+            </header>
+            
+            <div class="form-card">
+                <form id="dh-form" class="grid-form">
+                    <div class="input-group">
+                        <label for="dh-categoria">Categoría</label>
+                        <select id="dh-categoria" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Lunes a Viernes">Lunes a Viernes</option>
+                            <option value="Sábados y Domingos">Sábados y Domingos</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Días de Horario</label>
+                        <div class="checkbox-group" id="dh-dias-container">
+                            <label><input type="checkbox" name="dh-dia" value="Lunes"> Lun</label>
+                            <label><input type="checkbox" name="dh-dia" value="Martes"> Mar</label>
+                            <label><input type="checkbox" name="dh-dia" value="Miércoles"> Mié</label>
+                            <label><input type="checkbox" name="dh-dia" value="Jueves"> Jue</label>
+                            <label><input type="checkbox" name="dh-dia" value="Viernes"> Vie</label>
+                            <label><input type="checkbox" name="dh-dia" value="Sábado"> Sáb</label>
+                            <label><input type="checkbox" name="dh-dia" value="Domingo"> Dom</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dh-hora-inicio">Hora de Inicio</label>
+                        <div class="time-input-container">
+                            <input type="time" id="dh-hora-inicio" required>
+                            <select id="dh-ampm-inicio" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dh-hora-fin">Hora Final</label>
+                        <div class="time-input-container">
+                            <input type="time" id="dh-hora-fin" required>
+                            <select id="dh-ampm-fin" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dh-nombre">Nombre del Director</label>
+                        <input type="text" id="dh-nombre" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="dh-pais">País</label>
+                        <input type="text" id="dh-pais" placeholder="País de origen" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="dh-fecha-ingreso">Fecha de Ingreso a la Radio</label>
+                        <input type="date" id="dh-fecha-ingreso" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="dh-fecha-cumple">Fecha de Cumpleaños</label>
+                        <input type="date" id="dh-fecha-cumple" required>
+                    </div>
+                    <div class="input-group" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn-main">Registrar Director</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <h2>Directores Registrados</h2>
+                    <div class="filter-container">
+                        <select id="filter-categoria-dh">
+                            <option value="all">Todas las categorías</option>
+                            <option value="Lunes a Viernes">Lunes a Viernes</option>
+                            <option value="Sábados y Domingos">Sábados y Domingos</option>
+                        </select>
+                        <button id="btn-download-dh" class="btn-edit">Descargar PDF</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabla-dh">
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Día</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Nombre</th>
+                                <th>País</th>
+                                <th>Ingreso</th>
+                                <th>Cumpleaños</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
