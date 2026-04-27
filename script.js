@@ -410,12 +410,24 @@ document.addEventListener('DOMContentLoaded', () => {
 // Función global para eliminar registros
 async function deleteRecord(table, id) {
     if (!confirm('¿Está seguro de eliminar este registro?')) return;
+    
     const { error } = await supabaseClient.from(table).delete().eq('id', id);
-    if (error) alert(error.message); else window.location.reload();
+    
+    if (error) {
+        alert('Error al eliminar: ' + error.message);
+    } else {
+        // En lugar de recargar la página, podrías disparar el evento de actualización
+        // de la tabla correspondiente o simplemente recargar para asegurar consistencia
+        window.location.reload();
+    }
 }
 
 // Función global para actualizar roles de usuario
 async function updateUserRole(userId, newRole) {
+    if (!supabaseClient) {
+        alert('Error: Cliente de base de datos no inicializado.');
+        return;
+    }
     const role = localStorage.getItem('userRole');
     if (role !== 'admin') return;
     
