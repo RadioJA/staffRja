@@ -1,6 +1,6 @@
-# Archivos del sistema
-.DS_Store
-Thumbs.db
-
-# Carpetas de extensiones o temporales
+# Extensiones de VS Code
 .vscode/
+
+# Archivos de sistema
+Thumbs.db
+.DS_Store

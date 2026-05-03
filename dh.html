@@ -10,7 +10,7 @@
     <div class="panel-container">
         <aside class="sidebar">
             <div class="logo-panel">
-                <img src="img/rja.png" alt="Logo RJA" class="logo-small">
+                <img src="rja.png" alt="Logo RJA" class="logo-small">
             </div>
             <nav class="menu">
                 <ul>
@@ -20,6 +20,8 @@
                     <li><a href="#" class="active">Dh</a></li>
                     <li><a href="dg.html">DG</a></li>
                     <li><a href="reportes.html">Reportes</a></li>
+                    <li><a href="estadisticas.html">Estadísticas</a></li>
+                    <li><a href="certificado.html" target="_blank">Certificado</a></li>
                     <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
                 </ul>
             </nav>
@@ -79,7 +81,32 @@
                     </div>
                     <div class="input-group">
                         <label for="dh-pais">País</label>
-                        <input type="text" id="dh-pais" placeholder="País de origen" required>
+                        <select id="dh-pais" required>
+                            <option value="">Seleccione un país...</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="Bolivia">Bolivia</option>
+                            <option value="Brasil">Brasil</option>
+                            <option value="Chile">Chile</option>
+                            <option value="Colombia">Colombia</option>
+                            <option value="Costa Rica">Costa Rica</option>
+                            <option value="Cuba">Cuba</option>
+                            <option value="Ecuador">Ecuador</option>
+                            <option value="El Salvador">El Salvador</option>
+                            <option value="España">España</option>
+                            <option value="Estados Unidos">Estados Unidos</option>
+                            <option value="Guatemala">Guatemala</option>
+                            <option value="Honduras">Honduras</option>
+                            <option value="México">México</option>
+                            <option value="Nicaragua">Nicaragua</option>
+                            <option value="Panamá">Panamá</option>
+                            <option value="Paraguay">Paraguay</option>
+                            <option value="Perú">Perú</option>
+                            <option value="Puerto Rico">Puerto Rico</option>
+                            <option value="República Dominicana">República Dominicana</option>
+                            <option value="Uruguay">Uruguay</option>
+                            <option value="Venezuela">Venezuela</option>
+                            <option value="Otro">Otro</option>
+                        </select>
                     </div>
                     <div class="input-group">
                         <label for="dh-fecha-ingreso">Fecha de Ingreso a la Radio</label>
@@ -119,7 +146,7 @@
                                 <th>País</th>
                                 <th>Ingreso</th>
                                 <th>Cumpleaños</th>
-                                <th>Acciones</th>
+                                <th>Acciones</th> 
                             </tr>
                         </thead>
                         <tbody></tbody>

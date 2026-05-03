@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Certificado - RJA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .cert-preview { margin-top: 2rem; text-align: center; }
+        canvas { max-width: 100%; height: auto; border: 2px solid #ddd; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        #btn-save-cert { margin-top: 1rem; background-color: #27ae60; }
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 1.5rem; gap: 5px; }
+        .tab-link { background: #f8f9fa; border: 1px solid #ddd; border-bottom: none; padding: 10px 15px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; color: #666; }
+        .tab-link.active { background: #007bff; color: white; border-color: #007bff; }
+        .tab-content { display: none; padding: 10px 0; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="panel_principal.html">Inicio</a></li>
+                    <li><a href="moderadores.html">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="dh.html">Dh</a></li>
+                    <li><a href="dg.html">DG</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+                    <li><a href="estadisticas.html">Estadísticas</a></li>
+                    <li><a href="#" class="active">Certificado</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Generador de Reconocimientos</h1>
+                <p>Ingrese el nombre del destinatario para generar el certificado basado en la plantilla oficial.</p>
+            </header>
+            
+            <div class="form-card">
+                <div class="tabs">
+                    <button class="tab-link active" onclick="openTab(event, 'tab-nombre')">Nombre</button>
+                    <button class="tab-link" onclick="openTab(event, 'tab-director')">Director DH</button>
+                    <button class="tab-link" onclick="openTab(event, 'tab-firma')">Firma DH</button>
+                    <button class="tab-link" onclick="openTab(event, 'tab-firma-dg')">Firma DG</button>
+                </div>
+
+                <form id="cert-form">
+                    <!-- Pestaña Nombre -->
+                    <div id="tab-nombre" class="tab-content active">
+                        <div class="grid-form">
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label for="cert-nombre">Nombre del Reconocido</label>
+                                <input type="text" id="cert-nombre" placeholder="Ej: Juan Pérez">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-x">Posición H (%)</label>
+                                <input type="range" id="cert-x" min="0" max="100" value="50">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-y">Posición V (%)</label>
+                                <input type="range" id="cert-y" min="0" max="100" value="52">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pestaña Director -->
+                    <div id="tab-director" class="tab-content">
+                        <div class="grid-form">
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label for="cert-director">Nombre del Director DH</label>
+                                <input type="text" id="cert-director" placeholder="Nombre del Director">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-dir-x">Posición H (%)</label>
+                                <input type="range" id="cert-dir-x" min="0" max="100" value="75">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-dir-y">Posición V (%)</label>
+                                <input type="range" id="cert-dir-y" min="0" max="100" value="83">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pestaña Firma -->
+                    <div id="tab-firma" class="tab-content">
+                        <div class="grid-form">
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label for="cert-firma-file">Subir Imagen de Firma DH</label>
+                                <input type="file" id="cert-firma-file" accept="image/*">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-firma-x">Posición H (%)</label>
+                                <input type="range" id="cert-firma-x" min="0" max="100" value="75">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-firma-y">Posición V (%)</label>
+                                <input type="range" id="cert-firma-y" min="0" max="100" value="75">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-firma-w">Ancho (%)</label>
+                                <input type="range" id="cert-firma-w" min="5" max="50" value="15">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pestaña Firma DG -->
+                    <div id="tab-firma-dg" class="tab-content">
+                        <div class="grid-form">
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label for="cert-firma-dg-file">Subir Imagen de Firma DG</label>
+                                <input type="file" id="cert-firma-dg-file" accept="image/*">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-firma-dg-x">Posición H (%)</label>
+                                <input type="range" id="cert-firma-dg-x" min="0" max="100" value="25">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-firma-dg-y">Posición V (%)</label>
+                                <input type="range" id="cert-firma-dg-y" min="0" max="100" value="75">
+                            </div>
+                            <div class="input-group">
+                                <label for="cert-firma-dg-w">Ancho (%)</label>
+                                <input type="range" id="cert-firma-dg-w" min="5" max="50" value="15">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="margin-top: 1.5rem; display: flex; gap: 10px;">
+                        <button type="submit" class="btn-main">Actualizar Vista</button>
+                        <button type="button" id="btn-save-pos" class="btn-main" style="background-color: #f39c12;">Guardar Posición</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="cert-preview">
+                <canvas id="cert-canvas"></canvas>
+                <br>
+                <button id="btn-save-cert" class="btn-main" style="display:none; max-width: 250px;" onclick="downloadCert()">Descargar Imagen (.png)</button>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>

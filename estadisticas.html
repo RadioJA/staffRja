@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - RJA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .stats-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .stats-card h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            border-bottom: 2px solid #f4f7f6;
+            padding-bottom: 0.5rem;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f9f9f9;
+        }
+        .stat-item-complex {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .stat-main { display: flex; justify-content: space-between; font-weight: bold; cursor: pointer; list-style: none; }
+        .stat-main::-webkit-details-marker { display: none; }
+        .stat-main:hover { color: #007bff; }
+        .stat-sub { font-size: 0.8rem; color: #7f8c8d; margin-top: 0.4rem; padding-left: 0.5rem; line-height: 1.4; }
+    </style>
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="panel_principal.html">Inicio</a></li>
+                    <li><a href="moderadores.html">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="dh.html">Dh</a></li>
+                    <li><a href="dg.html">DG</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+                    <li><a href="#" class="active">Estadísticas</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Estadísticas Generales</h1>
+                <p>Resumen de registros por país, cumpleaños y aniversarios de ingreso.</p>
+            </header>
+            
+            <div class="stats-grid">
+                <div class="stats-card"><h3>Registros por País</h3><div id="stats-paises">Cargando...</div></div>
+                <div class="stats-card"><h3>Cumpleaños por Mes</h3><div id="stats-cumples">Cargando...</div></div>
+                <div class="stats-card"><h3>Aniversarios por Mes</h3><div id="stats-aniversarios">Cargando...</div></div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
