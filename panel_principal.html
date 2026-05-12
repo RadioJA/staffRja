@@ -14,12 +14,14 @@
             </div>
             <nav class="menu">
                 <ul>
-                    <li><a href="#" class="active">Inicio</a></li>
-                    <li><a href="moderadores.html">Moderadores</a></li>
-                    <li><a href="locutores.html">Locutores</a></li>
-                    <li><a href="dh.html">Dh</a></li>
-                    <li><a href="dg.html">DG</a></li>
-                    <li><a href="reportes.html">Reportes</a></li>
+                    <li id="menu-inicio"><a href="#" class="active">Inicio</a></li>
+                    <li id="menu-moderadores"><a href="moderadores.html">Moderadores</a></li>
+                    <li id="menu-locutores"><a href="locutores.html">Locutores</a></li>
+                    <li id="menu-dh"><a href="dh.html">Dh</a></li>
+                    <li id="menu-dg"><a href="dg.html">DG</a></li>
+                    <li id="menu-reportes"><a href="reportes.html">Reportes</a></li>
+                    <li id="menu-certificados" style="display:none;"><a href="certificado.html">Certificados</a></li>
+                    <li id="menu-reconocimiento" style="display:none;"><a href="reconocimiento.html">Reconocimiento</a></li>
                     <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
                 </ul>
             </nav>
@@ -31,11 +33,13 @@
                 <p>Has iniciado sesión correctamente.</p>
             </header>
             <div class="dashboard-grid">
-                <a href="moderadores.html" class="dash-card">Moderadores</a>
-                <a href="locutores.html" class="dash-card">Locutores</a>
-                <a href="dh.html" class="dash-card">Directores (Dh)</a>
-                <a href="dg.html" class="dash-card">Directiva (DG)</a>
-                <a href="reportes.html" class="dash-card">Reportes Diarios</a>
+                <a href="moderadores.html" id="dash-moderadores" class="dash-card">Moderadores</a>
+                <a href="locutores.html" id="dash-locutores" class="dash-card">Locutores</a>
+                <a href="dh.html" id="dash-dh" class="dash-card">Directores (Dh)</a>
+                <a href="dg.html" id="dash-dg" class="dash-card">Directiva (DG)</a>
+                <a href="reconocimiento.html" id="dash-reconocimiento" class="dash-card" style="display:none;">Reconocimiento</a>
+                <a href="reportes.html" id="dash-reportes" class="dash-card">Reportes Diarios</a>
+                <a href="certificado.html" id="dash-certificados" class="dash-card" style="display:none;">Certificados</a>
                 <a href="usuarios.html" id="dash-usuarios" class="dash-card admin-card" style="display:none;">Gestión de Usuarios</a>
             </div>
         </main>

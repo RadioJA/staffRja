@@ -54,13 +54,34 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("No se pudo inicializar Supabase. Verifique las librerías.");
     }
 
-    function updateUIPermissions(role) {
-        const menuUsuarios = document.querySelector('#menu-usuarios');
-        if (menuUsuarios) menuUsuarios.style.display = (role === 'admin') ? 'block' : 'none';
+    const updateUIPermissions = (role) => {
+        const isAdmin = (role === 'admin');
 
-        const dashUsuarios = document.getElementById('dash-usuarios');
-        if (dashUsuarios) dashUsuarios.style.display = (role === 'admin') ? 'flex' : 'none';
-    }
+        // Elementos que son exclusivos para administradores (Sidebar y Dashboard)
+        const adminOnlyElements = [
+            '#menu-inicio', '#menu-moderadores', '#menu-locutores', '#menu-dh', '#menu-dg', 
+            '#menu-estadisticas', '#menu-certificados', '#menu-reconocimiento', '#menu-usuarios',
+            'dash-moderadores', 'dash-locutores', 'dash-dh', 'dash-dg', 
+            'dash-estadisticas', 'dash-certificados', 'dash-reconocimiento', 'dash-usuarios'
+        ];
+
+        adminOnlyElements.forEach(selector => {
+            const isId = !selector.startsWith('#');
+            const el = isId ? document.getElementById(selector) : document.querySelector(selector);
+            
+            if (el) {
+                const isDash = selector.includes('dash-');
+                el.style.display = isAdmin ? (isDash ? 'flex' : 'block') : 'none';
+            }
+        });
+    };
+
+    // Cargar estado inicial desde localStorage para evitar parpadeos o menús faltantes al inicio
+    const initialRole = localStorage.getItem('userRole') || 'user';
+    const initialUserId = localStorage.getItem('currentUser');
+    
+    // Aplicar permisos de interfaz inmediatamente
+    updateUIPermissions(initialRole);
 
     // Verificar sesión al cargar páginas protegidas
     const checkSession = async () => {
@@ -87,6 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('userRole', finalRole);
                 localStorage.setItem('currentUser', user.id);
                 updateUIPermissions(finalRole);
+
+                // Redirección forzada para no-admins si intentan acceder a páginas prohibidas
+                const adminPages = ['panel_principal.html', 'moderadores.html', 'locutores.html', 'dh.html', 'dg.html', 'estadisticas.html', 'certificado.html', 'reconocimiento.html', 'usuarios.html'];
+                const currentPath = window.location.pathname.split('/').pop();
+                if (finalRole !== 'admin' && adminPages.includes(currentPath)) {
+                    window.location.href = 'reportes.html';
+                }
             }
         } catch (err) {
             console.warn("Sesión no disponible:", err.message);
@@ -152,7 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('currentUser', user.id);
                 localStorage.setItem('currentUserName', profile?.nombre || 'Usuario');
                 localStorage.setItem('userRole', userRole); // Usar el rol determinado
-                window.location.href = 'panel_principal.html';
+                
+                // Redirección inicial según el rol: admins al panel, otros a reportes
+                if (userRole === 'admin') {
+                    window.location.href = 'panel_principal.html';
+                } else {
+                    window.location.href = 'reportes.html';
+                }
             }
         });
     }
@@ -197,6 +231,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const modForm = document.getElementById('mod-form');
     if (modForm) {
+        const populateModSelects = async () => {
+            const { data: dhs } = await supabaseClient.from('directores_horario').select('nombre');
+            const select = document.getElementById('director-horario');
+            if (select) {
+                // Limpiar y resetear el selector con la opción por defecto
+                select.innerHTML = '<option value="">Seleccione un director...</option>';
+                dhs?.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.nombre;
+                    opt.textContent = d.nombre;
+                    select.appendChild(opt);
+                });
+            }
+        };
+
         const tableBody = document.querySelector('#tabla-moderadores tbody');
         
         window.displayModerators = async () => {
@@ -244,6 +293,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             editingModeratorId = id; // Store the ID of the record being edited
+
+            // Asegurar que el select tenga los nombres de los directores antes de asignar el valor
+            await populateModSelects();
 
             // Populate form fields
             document.getElementById('categoria').value = data.categoria;
@@ -311,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.getElementById('filter-categoria').addEventListener('change', () => window.displayModerators());
+        populateModSelects();
         window.displayModerators();
     }
 
@@ -659,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.displayReports = async () => {
             const role = localStorage.getItem('userRole');
             let query = supabaseClient.from('reportes').select('*');
-            if (role !== 'admin') query = query.eq('user_id', currentUser);
+            if (role !== 'admin') query = query.eq('user_id', localStorage.getItem('currentUser'));
             
             const { data, error } = await query.order('fecha', { ascending: false });
             if (error) return console.error("Error cargando reportes:", error.message);
@@ -787,7 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA DE USUARIOS (ADMIN) ---
     const userTableBody = document.querySelector('#tabla-usuarios tbody');
     if (userTableBody) {
-        if (role !== 'admin') {
+        if (initialRole !== 'admin') {
             window.location.href = 'panel_principal.html';
             return;
         }
@@ -1023,6 +1076,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('cert-firma-dg-y').value = data.cert_firma_dg_y;
                 document.getElementById('cert-firma-dg-w').value = data.cert_firma_dg_w;
                 document.getElementById('cert-director').value = data.director_nombre || "";
+
+                // Cargar y restaurar las imágenes de las firmas si existen en la BD
+                if (data.firma_data) {
+                    firmaImg = new Image();
+                    firmaImg.crossOrigin = "anonymous";
+                    firmaImg.onload = drawCertPreview;
+                    firmaImg.src = data.firma_data;
+                }
+                if (data.firma_dg_data) {
+                    firmaDgImg = new Image();
+                    firmaDgImg.crossOrigin = "anonymous";
+                    firmaDgImg.onload = drawCertPreview;
+                    firmaDgImg.src = data.firma_dg_data;
+                }
+
                 drawCertPreview();
             }
 
@@ -1137,6 +1205,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 cert_firma_dg_x: parseInt(document.getElementById('cert-firma-dg-x').value),
                 cert_firma_dg_y: parseInt(document.getElementById('cert-firma-dg-y').value),
                 cert_firma_dg_w: parseInt(document.getElementById('cert-firma-dg-w').value),
+                firma_data: firmaImg ? firmaImg.src : null,
+                firma_dg_data: firmaDgImg ? firmaDgImg.src : null,
                 director_nombre: document.getElementById('cert-director').value
             };
 
@@ -1182,6 +1252,205 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("No se pudo generar el archivo de imagen. Esto suele suceder si estás abriendo el archivo HTML directamente desde tu carpeta en lugar de usar un servidor local (como Live Server).");
             }
         };
+    }
+
+    // --- LÓGICA DE RECONOCIMIENTOS ---
+    const recognitionHistoryDiv = document.getElementById('recognition-history');
+    if (recognitionHistoryDiv) {
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        // Función para calcular cumplimiento del mes pasado
+        const checkAndRecordCompliance = async (userId, userEmail) => {
+            const now = new Date();
+            let targetMonth = now.getMonth(); // Mes actual (0-11)
+            let targetYear = now.getFullYear();
+            
+            // Si estamos a principio de mes, evaluamos el mes anterior
+            if (targetMonth === 0) { targetMonth = 11; targetYear--; } else { targetMonth--; }
+
+            // Verificar si ya existe el registro para evitar duplicados
+            const { data: existing } = await supabaseClient
+                .from('user_recognitions')
+                .select('id')
+                .eq('user_id', userId)
+                .eq('month', targetMonth + 1)
+                .eq('year', targetYear)
+                .maybeSingle();
+
+            if (existing) return;
+
+            // 1. Obtener los días que el usuario debe reportar
+            // Buscamos en todas las tablas de personal donde esté vinculado su user_id
+            const tables = ['moderadores', 'locutores', 'directores_horario'];
+            let userSchedule = [];
+            for (const table of tables) {
+                const { data } = await supabaseClient.from(table).select('dias_horario').eq('user_id', userId);
+                if (data) data.forEach(d => userSchedule = [...userSchedule, ...d.dias_horario]);
+            }
+            
+            if (userSchedule.length === 0) return; // No tiene horario asignado
+
+            // 2. Calcular cuántos reportes se esperaban
+            const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+            const dayMap = { 'Domingo': 0, 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6 };
+            const targetDayIndices = [...new Set(userSchedule)].map(d => dayMap[d]);
+            let expectedCount = 0;
+            for (let d = 1; d <= daysInMonth; d++) {
+                if (targetDayIndices.includes(new Date(targetYear, targetMonth, d).getDay())) expectedCount++;
+            }
+
+            // 3. Obtener reportes reales del usuario en ese mes
+            const { data: reports } = await supabaseClient
+                .from('reportes')
+                .select('fecha, created_at')
+                .eq('user_id', userId)
+                .eq('mes', targetMonth);
+
+            if (!reports || reports.length === 0) return;
+
+            // 4. Validar 100% y retraso <= 2 días
+            const has100Percent = reports.length >= expectedCount;
+            const noDelays = reports.every(r => {
+                const reportDate = new Date(r.fecha + 'T00:00:00');
+                const submitDate = new Date(r.created_at);
+                const diffTime = submitDate - reportDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays <= 2;
+            });
+
+            if (has100Percent && noDelays) {
+                await supabaseClient.from('user_recognitions').insert([{
+                    user_id: userId,
+                    user_email: userEmail,
+                    month: targetMonth + 1,
+                    year: targetYear,
+                    is_compliant: true
+                }]);
+            }
+        };
+
+        const displayRecognitions = async () => {
+            const userRole = localStorage.getItem('userRole');
+            const currentUserId = localStorage.getItem('currentUser');
+            
+            try {
+                const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+                if (authError) throw authError;
+
+                const user = authData?.user;
+
+                if (user && userRole !== 'admin') {
+                    // Evitamos que un fallo en la verificación bloquee la visualización del historial
+                    await checkAndRecordCompliance(user.id, user.email).catch(err => console.error("Error verificando cumplimiento:", err));
+                }
+            } catch (e) {
+                console.error("Error de autenticación:", e.message);
+            }
+            
+            let query = supabaseClient.from('user_recognitions').select('*');
+
+            if (userRole !== 'admin' && currentUserId) {
+                query = query.eq('user_id', currentUserId);
+            }
+
+            const { data, error } = await query.order('year', { ascending: false }).order('month', { ascending: false });
+
+            if (error) {
+                console.error("Error de base de datos en reconocimientos:", error);
+                recognitionHistoryDiv.innerHTML = `<p style="color:red;">Error al cargar: ${error.message}. Verifique si la tabla 'user_recognitions' existe.</p>`;
+                return;
+            }
+
+            if (data && data.length > 0) {
+                recognitionHistoryDiv.innerHTML = '';
+                data.forEach(rec => {
+                    const item = document.createElement('div');
+                    item.classList.add('recognition-item');
+                    const statusClass = rec.is_compliant ? 'status' : 'status failed';
+                    const statusText = rec.is_compliant ? 'Cumplido' : 'No Cumplido';
+                    const userName = userRole === 'admin' ? ` (${rec.user_email})` : '';
+
+                    item.innerHTML = `
+                        <span>${monthNames[rec.month - 1]} ${rec.year}${userName}</span>
+                        <span class="${statusClass}">${statusText}</span>
+                        ${rec.is_compliant ? `<button onclick="generateRecognitionCertificatePDF(${rec.id})">Descargar Certificado PDF</button>` : ''}
+                    `;
+                    recognitionHistoryDiv.appendChild(item);
+                });
+            } else {
+                recognitionHistoryDiv.innerHTML = '<p>No tienes reconocimientos registrados aún.</p>';
+            }
+        };
+
+        window.generateRecognitionCertificatePDF = async (recognitionId) => {
+            // 1. Obtener datos del reconocimiento y perfil
+            const { data: rec } = await supabaseClient.from('user_recognitions').select('*').eq('id', recognitionId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('nombre').eq('id', rec.user_id).single();
+            
+            // 2. Obtener la configuración visual del menú Certificados
+            const { data: config } = await supabaseClient.from('cert_configs').select('*').eq('config_name', 'default').maybeSingle();
+
+            if (!config) {
+                alert("Debe configurar las posiciones en el menú 'Certificado' primero.");
+                return;
+            }
+
+            const canvas = document.getElementById('recognition-canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+
+            img.onload = async () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                // Dibujar Nombre del Destinatario (usando config de DB)
+                ctx.font = "italic bold 85px 'Times New Roman', serif";
+                ctx.fillStyle = "#0c3150";
+                ctx.textAlign = "center";
+                ctx.fillText(profile.nombre, canvas.width * (config.cert_x / 100), canvas.height * (config.cert_y / 100));
+
+                // Texto descriptivo del reconocimiento
+                const month = monthNames[rec.month - 1];
+                ctx.font = "bold 25px Arial";
+                ctx.fillStyle = "#333";
+                ctx.fillText(`Cumplimiento 100% - ${month} ${rec.year}`, canvas.width / 2, (canvas.height * (config.cert_y / 100)) + 80);
+
+                // Dibujar Director si existe
+                if (config.director_nombre) {
+                    ctx.font = "bold 25px Arial";
+                    ctx.fillText(config.director_nombre, canvas.width * (config.cert_dir_x / 100), canvas.height * (config.cert_dir_y / 100));
+                }
+
+                // Función auxiliar para cargar y dibujar firmas
+                const drawFirma = (base64, x, y, w) => {
+                    return new Promise(resolve => {
+                        if (!base64) return resolve();
+                        const fImg = new Image();
+                        fImg.onload = () => {
+                            const aspect = fImg.height / fImg.width;
+                            const dW = canvas.width * (w / 100);
+                            const dH = dW * aspect;
+                            ctx.drawImage(fImg, canvas.width * (x / 100) - (dW / 2), canvas.height * (y / 100) - (dH / 2), dW, dH);
+                            resolve();
+                        };
+                        fImg.src = base64;
+                    });
+                };
+
+                await drawFirma(config.firma_data, config.cert_firma_x, config.cert_firma_y, config.cert_firma_w);
+                await drawFirma(config.firma_dg_data, config.cert_firma_dg_x, config.cert_firma_dg_y, config.cert_firma_dg_w);
+
+                const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width, canvas.height] });
+                doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+                doc.save(`Reconocimiento_${profile.nombre}_${month}.pdf`);
+            };
+
+            img.src = 'certificado.png';
+        };
+
+        displayRecognitions();
     }
 });
 

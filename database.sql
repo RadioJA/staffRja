@@ -103,9 +103,26 @@ CREATE TABLE IF NOT EXISTS cert_configs (
   cert_firma_dg_y INTEGER DEFAULT 75,
   cert_firma_dg_w INTEGER DEFAULT 15,
   director_nombre TEXT,
+  firma_data TEXT, -- Almacena la imagen de la firma DH en Base64
+  firma_dg_data TEXT, -- Almacena la imagen de la firma DG en Base64
   user_id UUID DEFAULT auth.uid() REFERENCES auth.users,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 7.1 Tabla de Reconocimientos (Historial de Cumplimiento) - DEFINICIÓN EXPLÍCITA
+CREATE TABLE IF NOT EXISTS public.user_recognitions (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id UUID REFERENCES auth.users ON DELETE CASCADE,
+  user_email TEXT,
+  month INTEGER NOT NULL, -- 1-12
+  year INTEGER NOT NULL,
+  is_compliant BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, month, year)
+);
+
+-- Asegurar que RLS esté activado para esta tabla
+ALTER TABLE public.user_recognitions ENABLE ROW LEVEL SECURITY;
 
 -- 8. Función y Trigger para crear perfil automáticamente al registrarse
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -122,7 +139,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_auth_user_created
+CREATE OR REPLACE TRIGGER on_auth_user_created_create_profile
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
@@ -133,6 +150,7 @@ ALTER TABLE locutores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE directores_horario ENABLE ROW LEVEL SECURITY;
 ALTER TABLE directiva_general ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reportes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_recognitions ENABLE ROW LEVEL SECURITY;
 
 -- Políticas para Perfiles (Limpieza Total)
 DROP POLICY IF EXISTS "Perfiles visibles por usuarios autenticados" ON profiles;
@@ -222,6 +240,24 @@ WITH CHECK (is_admin());
 CREATE POLICY "Delete_Admin_Cert_Configs" 
 ON cert_configs FOR DELETE 
 USING (is_admin());
+
+-- 11. Políticas específicas para user_recognitions
+-- Limpiar políticas genéricas previas para esta tabla (si existieran)
+DROP POLICY IF EXISTS "Users can view their own recognitions" ON public.user_recognitions;
+DROP POLICY IF EXISTS "Admins can manage all recognitions" ON public.user_recognitions;
+DROP POLICY IF EXISTS "Users can insert their own recognitions" ON public.user_recognitions;
+
+-- Usuarios pueden ver sus propios reconocimientos
+CREATE POLICY "Users can view their own recognitions" ON public.user_recognitions
+FOR SELECT USING (auth.uid() = user_id);
+
+-- Permitir que los usuarios inserten su propio registro de cumplimiento
+CREATE POLICY "Users can insert their own recognitions" ON public.user_recognitions
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Admins pueden ver, insertar, actualizar y eliminar todos los reconocimientos
+CREATE POLICY "Admins can manage all recognitions" ON public.user_recognitions
+FOR ALL USING (is_admin());
 
 -- RECTIFICACIÓN MANUAL: Asegurar que el admin principal tenga el rol correcto
 -- Ejecuta esto para actualizar tu usuario actual si ya existe

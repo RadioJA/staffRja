@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Reconocimientos - RJA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .recognition-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-top: 2rem;
+        }
+        .recognition-list {
+            margin-top: 1rem;
+        }
+        .recognition-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .recognition-item:last-child {
+            border-bottom: none;
+        }
+        .recognition-item span {
+            font-weight: bold;
+            color: #333;
+        }
+        .recognition-item .status {
+            color: #27ae60; /* Verde para cumplido */
+            font-weight: normal;
+        }
+        .recognition-item .status.failed {
+            color: #e74c3c; /* Rojo para no cumplido */
+        }
+        .recognition-item button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .recognition-item button:hover {
+            background-color: #0056b3;
+        }
+        /* Ocultar canvas de previsualización, solo se usa para generar el PDF */
+        #recognition-canvas { display: none; }
+    </style>
+</head>
+<body>
+    <div class="panel-container">
+        <aside class="sidebar">
+            <div class="logo-panel">
+                <img src="rja.png" alt="Logo RJA" class="logo-small">
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="panel_principal.html">Inicio</a></li>
+                    <li><a href="moderadores.html">Moderadores</a></li>
+                    <li><a href="locutores.html">Locutores</a></li>
+                    <li><a href="dh.html">Dh</a></li>
+                    <li><a href="dg.html">DG</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+                    <li><a href="estadisticas.html">Estadísticas</a></li>
+                    <li id="menu-certificados"><a href="certificado.html">Certificado</a></li>
+                    <li id="menu-reconocimiento"><a href="#" class="active">Reconocimiento</a></li>
+                    <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
+                </ul>
+            </nav>
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Mis Reconocimientos de Reportes</h1>
+                <p>Aquí puedes ver tu historial de cumplimiento de reportes y descargar tus certificados.</p>
+            </header>
+            <div class="recognition-card">
+                <h2>Historial de Cumplimiento</h2>
+                <div id="recognition-history" class="recognition-list">Cargando historial...</div>
+            </div>
+            <canvas id="recognition-canvas"></canvas>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
