@@ -14,6 +14,14 @@
             </div>
             <nav class="menu">
                 <ul>
+                    <li id="menu-inicio"><a href="panel_principal.html">Inicio</a></li>
+                    <li id="menu-moderadores"><a href="moderadores.html">Moderadores</a></li>
+                    <li id="menu-locutores"><a href="locutores.html">Locutores</a></li>
+                    <li id="menu-dh"><a href="dh.html">Dh</a></li>
+                    <li id="menu-club-inf"><a href="club_inf.html">Club Inf.</a></li>
+                    <li id="menu-dg"><a href="dg.html">DG</a></li>
+                    <li><a href="#" class="active">Reportes</a></li>
+                    <li id="menu-estadisticas"><a href="estadisticas.html">Estadísticas</a></li>
                     <li id="menu-certificados"><a href="certificado.html">Certificado</a></li>
                     <li id="menu-reconocimiento"><a href="reconocimiento.html">Reconocimiento</a></li>
                     <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
@@ -67,8 +75,16 @@
                     <div class="input-group">
                         <label>Horario (Inicio - Fin)</label>
                         <div class="time-input-container">
-                            <input type="time" id="rep-hora-inicio" required>
-                            <input type="time" id="rep-hora-fin" required>
+                            <input type="time" id="rep-hora-inicio" required style="width: 50%;">
+                            <select id="rep-ampm-inicio" required style="width: 25%;">
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                            <input type="time" id="rep-hora-fin" required style="width: 50%;">
+                            <select id="rep-ampm-fin" required style="width: 25%;">
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
                         </div>
                     </div>
                     <div class="input-group">

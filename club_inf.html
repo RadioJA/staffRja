@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro DG - RJA</title>
+    <title>Registro Club Inf. - RJA</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,13 +15,15 @@
             <nav class="menu">
                 <ul>
                     <li><a href="panel_principal.html">Inicio</a></li>
-                    <li><a href="moderadores.html">Moderadores</a></li>
-                    <li><a href="locutores.html">Locutores</a></li>
-                    <li><a href="dh.html">Dh</a></li>
-                    <li id="menu-club-inf"><a href="club_inf.html">Club Inf.</a></li>
-                    <li><a href="#" class="active">DG</a></li>
+                    <li id="menu-moderadores"><a href="moderadores.html">Moderadores</a></li>
+                    <li id="menu-locutores"><a href="locutores.html">Locutores</a></li>
+                    <li id="menu-dh"><a href="dh.html">Dh</a></li>
+                    <li id="menu-dg"><a href="dg.html">DG</a></li>
+                    <li id="menu-club-inf"><a href="#" class="active">Club Inf.</a></li>
                     <li><a href="reportes.html">Reportes</a></li>
                     <li><a href="estadisticas.html">Estadísticas</a></li>
+                    <li id="menu-certificados"><a href="certificado.html">Certificado</a></li>
+                    <li id="menu-reconocimiento"><a href="reconocimiento.html">Reconocimiento</a></li>
                     <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
                 </ul>
             </nav>
@@ -29,25 +31,19 @@
         </aside>
         <main class="main-content">
             <header>
-                <h1>Registro de Directiva General (DG)</h1>
-                <p>Gestione los cargos directivos seleccionando miembros de las otras áreas.</p>
+                <h1>Registro de Miembros del Club Inf.</h1>
+                <p>Complete la información para registrar un nuevo miembro del Club Inf.</p>
             </header>
             
             <div class="form-card">
-                <form id="dg-form" class="grid-form">
+                <form id="club-inf-form" class="grid-form">
                     <div class="input-group">
-                        <label for="dg-nombre">Nombre (Miembros Registrados)</label>
-                        <select id="dg-nombre" required>
-                            <option value="">Seleccione un miembro...</option>
-                        </select>
+                        <label for="club-inf-nombre">Nombre Completo</label>
+                        <input type="text" id="club-inf-nombre" placeholder="Nombre completo del miembro" required>
                     </div>
                     <div class="input-group">
-                        <label for="dg-cargo">Cargo</label>
-                        <input type="text" id="dg-cargo" placeholder="Ej: Director General" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="dg-pais">País</label>
-                        <select id="dg-pais" required>
+                        <label for="club-inf-pais">País</label>
+                        <select id="club-inf-pais" required>
                             <option value="">Seleccione un país...</option>
                             <option value="Argentina">Argentina</option>
                             <option value="Bolivia">Bolivia</option>
@@ -75,38 +71,27 @@
                         </select>
                     </div>
                     <div class="input-group">
-                        <label for="dg-fecha-ingreso">Fecha de Ingreso a la Radio</label>
-                        <input type="date" id="dg-fecha-ingreso" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="dg-fecha-cumple">Fecha de Cumpleaños</label>
-                        <input type="date" id="dg-fecha-cumple" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="dg-compromiso">Link de Compromiso</label>
-                        <input type="url" id="dg-compromiso" placeholder="https://link-al-archivo.com">
+                        <label for="club-inf-fecha-cumple">Fecha de Cumpleaños</label>
+                        <input type="date" id="club-inf-fecha-cumple">
                     </div>
                     <div class="input-group" style="grid-column: 1 / -1;">
-                        <button type="submit" class="btn-main">Registrar en DG</button>
+                        <button type="submit" class="btn-main">Registrar Miembro</button>
                     </div>
                 </form>
             </div>
 
             <div class="table-card">
                 <div class="table-header">
-                    <h2>Directiva Registrada</h2>
-                    <button id="btn-download-dg" class="btn-edit">Descargar PDF</button>
+                    <h2>Miembros Registrados</h2>
+                    <button id="btn-download-club-inf" class="btn-edit">Descargar PDF</button>
                 </div>
                 <div class="table-responsive">
-                    <table id="tabla-dg">
+                    <table id="tabla-club-inf">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
-                                <th>Cargo</th>
                                 <th>País</th>
-                                <th>Ingreso</th>
                                 <th>Cumpleaños</th>
-                                <th>Compromiso</th>
                                 <th>Acciones</th> 
                             </tr>
                         </thead>

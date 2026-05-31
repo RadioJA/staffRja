@@ -8,13 +8,12 @@
 
 body {
     background-color: #f4f7f6;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
 }
 
 .auth-container {
+    margin: 5vh auto;
     background: #fff;
     padding: 2rem;
     border-radius: 12px;
@@ -95,20 +94,25 @@ h2 {
 }
 
 /* --- Estilos para el Panel Principal --- */
-.panel-container {
+/* Los estilos 'body' para centrar son para la página de login.
+   Para las páginas del panel, el '.panel-container' debe ocupar todo el ancho/alto. */
+
+.panel-container { /* Este será ahora el contenedor principal del layout */
     display: flex;
+    flex-direction: column; /* Apila el encabezado y el contenido principal verticalmente */
     width: 100%;
     height: 100vh;
-    align-items: stretch;
 }
 
 .sidebar {
-    width: 260px;
+    width: 100%; /* Ancho completo para la barra horizontal */
     background-color: #1a252f;
     color: white;
     display: flex;
-    flex-direction: column;
-    padding: 2rem 1rem;
+    flex-direction: row; /* Layout horizontal */
+    justify-content: space-between; /* Distribuye el logo, menú y botón de cerrar sesión */
+    align-items: center; /* Alinea los elementos verticalmente */
+    padding: 1rem 2rem; /* Padding ajustado para la barra superior */
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
@@ -116,7 +120,7 @@ h2 {
     background-color: white;
     padding: 15px;
     border-radius: 12px;
-    margin-bottom: 2rem;
+    margin-bottom: 0; /* Sin margen inferior para el layout horizontal */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -128,22 +132,26 @@ h2 {
 }
 
 .menu {
-    flex-grow: 1;
+    flex-grow: 1; /* Permite que el menú ocupe el espacio disponible para empujar el botón de cerrar sesión a la derecha */
+    display: flex; /* Para centrar el 'ul' dentro */
+    justify-content: center; /* Centra el 'ul' horizontalmente */
 }
 
 .menu ul {
     list-style: none;
+    display: flex; /* Hace que los elementos del menú sean horizontales */
+    gap: 1.5rem; /* Espacio entre los elementos del menú */
 }
 
 .menu ul li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0; /* Sin margen inferior para el menú horizontal */
 }
 
 .menu ul li a {
     color: #bdc3c7;
     text-decoration: none;
-    padding: 0.8rem 1rem;
-    display: block;
+    padding: 0.5rem 1rem; /* Padding ajustado */
+    display: inline-block; /* O 'block', pero 'inline-block' funciona bien con flex */
     border-radius: 8px;
     transition: all 0.3s;
 }
@@ -154,7 +162,7 @@ h2 {
 }
 
 .logout-btn {
-    margin-top: auto;
+    margin-top: 0; /* Sin margen automático superior para el layout horizontal */
     text-align: center;
     padding: 0.8rem;
     background-color: #e74c3c;
@@ -170,7 +178,7 @@ h2 {
 }
 
 .main-content {
-    flex-grow: 1;
+    flex-grow: 1; /* Permite que el contenido principal ocupe el espacio vertical restante */
     padding: 3rem;
     background-color: #f4f7f6;
     overflow-y: auto;
@@ -347,4 +355,11 @@ table th {
 .admin-card {
     border: 2px solid #e67e22;
     color: #e67e22;
+}
+
+/* Media query para pantallas más pequeñas si el menú horizontal se vuelve demasiado ancho */
+@media (max-width: 900px) {
+    .sidebar {
+        flex-wrap: wrap; /* Permite que los elementos se envuelvan si la pantalla es muy pequeña */
+    }
 }

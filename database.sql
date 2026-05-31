@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS moderadores (
   fecha_ingreso DATE,
   fecha_cumple DATE,
   director_horario TEXT,
+  compromiso TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   user_id UUID DEFAULT auth.uid() REFERENCES auth.users
 );
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS locutores (
   fecha_ingreso DATE,
   fecha_cumple DATE,
   director TEXT,
+  compromiso TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   user_id UUID DEFAULT auth.uid() REFERENCES auth.users
 );
@@ -53,6 +55,7 @@ CREATE TABLE IF NOT EXISTS directores_horario (
   pais TEXT,
   fecha_ingreso DATE,
   fecha_cumple DATE,
+  compromiso TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   user_id UUID DEFAULT auth.uid() REFERENCES auth.users
 );
@@ -65,6 +68,7 @@ CREATE TABLE IF NOT EXISTS directiva_general (
   pais TEXT,
   fecha_ingreso DATE,
   fecha_cumple DATE,
+  compromiso TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   user_id UUID DEFAULT auth.uid() REFERENCES auth.users
 );
@@ -85,6 +89,7 @@ CREATE TABLE IF NOT EXISTS reportes (
   whatsapp TEXT,
   chat TEXT,
   redes TEXT,
+  compromiso TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -120,6 +125,18 @@ CREATE TABLE IF NOT EXISTS public.user_recognitions (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id, month, year)
 );
+
+-- 7.2 Tabla de Club Inf.
+CREATE TABLE IF NOT EXISTS public.club_inf (
+ id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+ nombre TEXT NOT NULL,
+ pais TEXT NOT NULL,
+ fecha_cumple DATE,
+ compromiso TEXT,
+ created_at TIMESTAMPTZ DEFAULT NOW(),
+ user_id UUID DEFAULT auth.uid() REFERENCES auth.users
+);
+
 
 -- Asegurar que RLS esté activado para esta tabla
 ALTER TABLE public.user_recognitions ENABLE ROW LEVEL SECURITY;
@@ -177,7 +194,7 @@ CREATE POLICY "Admins pueden borrar perfiles" ON profiles FOR DELETE USING (is_a
 -- Aplicar políticas restrictivas a todas las tablas de gestión
 -- Moderadores, Locutores, DH, DG y Reportes seguirán la misma lógica:
 
-DO $body$
+DO $$
 DECLARE
     t TEXT;
     tablas TEXT[] := ARRAY['moderadores', 'locutores', 'directores_horario', 'directiva_general', 'reportes'];
@@ -197,7 +214,7 @@ BEGIN
         EXECUTE format('DROP POLICY IF EXISTS "Delete_Policy_%s" ON %I', t, t);
         
         -- 1. SELECT: Usuarios ven lo suyo, Admins ven TODO
-        EXECUTE format('CREATE POLICY "Select_Policy_%s" ON %I FOR SELECT USING (auth.uid() = user_id OR is_admin())', t, t);
+        EXECUTE format('CREATE POLICY "Select_Policy_%s" ON %I FOR SELECT USING (auth.role() = ''authenticated'')', t, t);
         
         -- 2. INSERT: Cualquier autenticado puede insertar
         EXECUTE format('CREATE POLICY "Insert_Policy_%s" ON %I FOR INSERT WITH CHECK (auth.role() = ''authenticated'')', t, t);
@@ -207,8 +224,22 @@ BEGIN
         
         -- 4. DELETE: SOLO Administradores
         EXECUTE format('CREATE POLICY "Delete_Policy_%s" ON %I FOR DELETE USING (is_admin())', t, t);
-    END LOOP;
-END $body$;
+ END LOOP;
+END $$;
+
+-- Permitir que todos los usuarios vean la lista de personal para los selectores de reportes
+DROP POLICY IF EXISTS "Select_Policy_locutores" ON locutores;
+CREATE POLICY "Select_Policy_locutores" ON locutores FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Select_Policy_moderadores" ON moderadores;
+CREATE POLICY "Select_Policy_moderadores" ON moderadores FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Select_Policy_directores_horario" ON directores_horario;
+CREATE POLICY "Select_Policy_directores_horario" ON directores_horario FOR SELECT USING (auth.role() = 'authenticated');
+
+-- Permitir que todos los usuarios autenticados vean todos los reportes (según solicitud)
+DROP POLICY IF EXISTS "Select_Policy_reportes" ON reportes;
+CREATE POLICY "Select_Policy_reportes" ON reportes FOR SELECT USING (auth.role() = 'authenticated');
 
 -- 10. Políticas específicas para cert_configs (Configuración Global)
 ALTER TABLE cert_configs ENABLE ROW LEVEL SECURITY;
@@ -259,6 +290,26 @@ FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Admins can manage all recognitions" ON public.user_recognitions
 FOR ALL USING (is_admin());
 
+-- 12. Políticas específicas para club_inf
+ALTER TABLE public.club_inf ENABLE ROW LEVEL SECURITY;
+
+-- Limpiar políticas genéricas previas para esta tabla (si existieran)
+DROP POLICY IF EXISTS "Select_Policy_club_inf" ON public.club_inf;
+DROP POLICY IF EXISTS "Insert_Policy_club_inf" ON public.club_inf;
+DROP POLICY IF EXISTS "Update_Policy_club_inf" ON public.club_inf;
+DROP POLICY IF EXISTS "Delete_Policy_club_inf" ON public.club_inf;
+
+-- 1. SELECT: Todos los usuarios autenticados pueden ver los miembros del Club Inf.
+CREATE POLICY "Select_Policy_club_inf" ON public.club_inf FOR SELECT USING (auth.role() = 'authenticated');
+
+-- 2. INSERT: Cualquier autenticado puede insertar (siempre que su user_id coincida)
+CREATE POLICY "Insert_Policy_club_inf" ON public.club_inf FOR INSERT WITH CHECK (auth.uid() = user_id OR is_admin());
+
+-- 3. UPDATE: Usuarios editan lo suyo, Admins editan TODO
+CREATE POLICY "Update_Policy_club_inf" ON public.club_inf FOR UPDATE USING (auth.uid() = user_id OR is_admin());
+
+-- 4. DELETE: SOLO Administradores
+CREATE POLICY "Delete_Policy_club_inf" ON public.club_inf FOR DELETE USING (is_admin());
 -- RECTIFICACIÓN MANUAL: Asegurar que el admin principal tenga el rol correcto
 -- Ejecuta esto para actualizar tu usuario actual si ya existe
 UPDATE public.profiles 

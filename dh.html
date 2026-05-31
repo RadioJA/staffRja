@@ -14,14 +14,16 @@
             </div>
             <nav class="menu">
                 <ul>
-                    <li><a href="panel_principal.html">Inicio</a></li>
-                    <li><a href="moderadores.html">Moderadores</a></li>
-                    <li><a href="locutores.html">Locutores</a></li>
+                    <li id="menu-inicio"><a href="panel_principal.html">Inicio</a></li>
+                    <li id="menu-moderadores"><a href="moderadores.html">Moderadores</a></li>
+                    <li id="menu-locutores"><a href="locutores.html">Locutores</a></li>
                     <li><a href="#" class="active">Dh</a></li>
-                    <li><a href="dg.html">DG</a></li>
+                    <li id="menu-club-inf"><a href="club_inf.html">Club Inf.</a></li>
+                    <li id="menu-dg"><a href="dg.html">DG</a></li>
                     <li><a href="reportes.html">Reportes</a></li>
-                    <li><a href="estadisticas.html">Estadísticas</a></li>
-                    <li><a href="certificado.html" target="_blank">Certificado</a></li>
+                    <li id="menu-estadisticas"><a href="estadisticas.html">Estadísticas</a></li>
+                    <li id="menu-certificados"><a href="certificado.html">Certificado</a></li>
+                    <li id="menu-reconocimiento"><a href="reconocimiento.html">Reconocimiento</a></li>
                     <li id="menu-usuarios" style="display:none;"><a href="usuarios.html">Usuarios</a></li>
                 </ul>
             </nav>
@@ -116,6 +118,10 @@
                         <label for="dh-fecha-cumple">Fecha de Cumpleaños</label>
                         <input type="date" id="dh-fecha-cumple" required>
                     </div>
+                    <div class="input-group">
+                        <label for="dh-compromiso">Link de Compromiso</label>
+                        <input type="url" id="dh-compromiso" placeholder="https://link-al-archivo.com">
+                    </div>
                     <div class="input-group" style="grid-column: 1 / -1;">
                         <button type="submit" class="btn-main">Registrar Director</button>
                     </div>
@@ -146,6 +152,7 @@
                                 <th>País</th>
                                 <th>Ingreso</th>
                                 <th>Cumpleaños</th>
+                                <th>Compromiso</th>
                                 <th>Acciones</th> 
                             </tr>
                         </thead>

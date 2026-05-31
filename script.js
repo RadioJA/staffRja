@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const isAdmin = (role === 'admin');
 
         // Elementos que son exclusivos para administradores (Sidebar y Dashboard)
-        const adminOnlyElements = [
-            '#menu-inicio', '#menu-moderadores', '#menu-locutores', '#menu-dh', '#menu-dg', 
+        const adminOnlyElements = [ 
+            '#menu-inicio', '#menu-moderadores', '#menu-locutores', '#menu-dh', '#menu-dg', '#menu-club-inf',
             '#menu-estadisticas', '#menu-certificados', '#menu-reconocimiento', '#menu-usuarios',
             'dash-moderadores', 'dash-locutores', 'dash-dh', 'dash-dg', 
             'dash-estadisticas', 'dash-certificados', 'dash-reconocimiento', 'dash-usuarios'
@@ -109,8 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('currentUser', user.id);
                 updateUIPermissions(finalRole);
 
+                // Si estamos en la página de reportes, cargar los datos ahora que la sesión es segura
+                if (document.getElementById('rep-form')) {
+                    if (window.populateRepSelects) await window.populateRepSelects();
+                    if (window.displayReports) await window.displayReports();
+                }
+
                 // Redirección forzada para no-admins si intentan acceder a páginas prohibidas
-                const adminPages = ['panel_principal.html', 'moderadores.html', 'locutores.html', 'dh.html', 'dg.html', 'estadisticas.html', 'certificado.html', 'reconocimiento.html', 'usuarios.html'];
+                const adminPages = ['panel_principal.html', 'moderadores.html', 'locutores.html', 'dh.html', 'dg.html', 'club_inf.html', 'estadisticas.html', 'certificado.html', 'reconocimiento.html', 'usuarios.html'];
                 const currentPath = window.location.pathname.split('/').pop();
                 if (finalRole !== 'admin' && adminPages.includes(currentPath)) {
                     window.location.href = 'reportes.html';
@@ -118,17 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.warn("Sesión no disponible:", err.message);
-            const protectedPages = ['panel_principal', 'moderadores', 'locutores', 'dh', 'dg', 'reportes', 'usuarios', 'certificado'];
+            const protectedPages = ['panel_principal', 'moderadores', 'locutores', 'dh', 'dg', 'club_inf', 'reportes', 'usuarios', 'certificado'];
             if (protectedPages.some(page => window.location.pathname.includes(page))) {
                 localStorage.clear();
                 window.location.href = 'index.html';
             }
         }
     };
-
-    if (supabaseClient) {
-        checkSession();
-    }
 
     const loginForm = document.querySelector('#login-form form');
     if (loginForm) {
@@ -275,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${mod.fecha_ingreso || ''}</td>
                     <td>${mod.fecha_cumple || ''}</td>
                     <td>${mod.director_horario}</td>
+                    <td>${mod.compromiso ? `<a href="${mod.compromiso}" target="_blank">Ver</a>` : 'N/A'}</td>
                     <td>
                         <button class="btn-edit" onclick="editModerator(${mod.id})">Editar</button>
                         <button class="btn-delete" onclick="deleteRecord('moderadores', ${mod.id}, displayModerators)">Eliminar</button>
@@ -318,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('fecha-ingreso').value = data.fecha_ingreso;
             document.getElementById('fecha-cumple').value = data.fecha_cumple;
             document.getElementById('director-horario').value = data.director_horario;
+            document.getElementById('mod-compromiso').value = data.compromiso || '';
 
             // Change button text
             document.querySelector('#mod-form button[type="submit"]').textContent = 'Actualizar Moderador';
@@ -335,7 +339,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 pais: document.getElementById('pais').value,
                 fecha_ingreso: document.getElementById('fecha-ingreso').value,
                 fecha_cumple: document.getElementById('fecha-cumple').value,
-                director_horario: document.getElementById('director-horario').value
+                director_horario: document.getElementById('director-horario').value,
+                compromiso: document.getElementById('mod-compromiso').value
             };
 
             let error;
@@ -374,6 +379,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const locForm = document.getElementById('loc-form');
     const locSubmitBtn = locForm ? locForm.querySelector('button[type="submit"]') : null;
     if (locForm) {
+        const populateLocSelects = async () => {
+            const { data: dhs } = await supabaseClient.from('directores_horario').select('nombre');
+            const select = document.getElementById('loc-director');
+            if (select) {
+                select.innerHTML = '<option value="">Seleccione un director...</option>';
+                dhs?.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.nombre;
+                    opt.textContent = d.nombre;
+                    select.appendChild(opt);
+                });
+            }
+        };
+
         const tableBody = document.querySelector('#tabla-locutores tbody');
         
         window.displayLocutores = async () => {
@@ -406,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${loc.fecha_ingreso}</td>
                     <td>${loc.fecha_cumple}</td>
                     <td>${loc.director}</td>
+                    <td>${loc.compromiso ? `<a href="${loc.compromiso}" target="_blank">Ver</a>` : 'N/A'}</td>
                     <td>
                         <button class="btn-edit" onclick="editLocutor(${loc.id})">Editar</button>
                         <button class="btn-delete" onclick="deleteRecord('locutores', ${loc.id}, displayLocutores)">Eliminar</button>
@@ -423,6 +443,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             editingLocutorId = id;
+
+            // Asegurar que el select tenga los nombres de los directores antes de asignar el valor
+            await populateLocSelects();
 
             document.getElementById('loc-categoria').value = data.categoria;
             document.querySelectorAll('input[name="loc-dia"]').forEach(cb => {
@@ -445,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loc-fecha-ingreso').value = data.fecha_ingreso;
             document.getElementById('loc-fecha-cumple').value = data.fecha_cumple;
             document.getElementById('loc-director').value = data.director;
+            document.getElementById('loc-compromiso').value = data.compromiso || '';
 
             if (locSubmitBtn) locSubmitBtn.textContent = 'Actualizar Locutor';
         };
@@ -464,7 +488,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 pais: document.getElementById('loc-pais').value,
                 fecha_ingreso: document.getElementById('loc-fecha-ingreso').value,
                 fecha_cumple: document.getElementById('loc-fecha-cumple').value,
-                director: document.getElementById('loc-director').value
+                director: document.getElementById('loc-director').value,
+                compromiso: document.getElementById('loc-compromiso').value
             };
 
             let error;
@@ -490,6 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.getElementById('filter-categoria-loc').addEventListener('change', () => window.displayLocutores());
+        populateLocSelects();
         window.displayLocutores();
     }
     // Global variable to store the ID of the DH being edited
@@ -523,11 +549,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${dh.pais}</td>
                     <td>${dh.fecha_ingreso}</td>
                     <td>${dh.fecha_cumple}</td>
+                    <td>${dh.compromiso ? `<a href="${dh.compromiso}" target="_blank">Ver</a>` : 'N/A'}</td>
                     <td>
                         <button class="btn-edit" onclick="editDh(${dh.id})">Editar</button>
                         <button class="btn-delete" onclick="deleteRecord('directores_horario', ${dh.id}, displayDh)">Eliminar</button>
-                    </td>
-                </tr>`;
+                    </td>`;
                 tableBody.appendChild(row);
             });
         };
@@ -558,6 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('dh-pais').value = data.pais;
             document.getElementById('dh-fecha-ingreso').value = data.fecha_ingreso;
             document.getElementById('dh-fecha-cumple').value = data.fecha_cumple;
+            document.getElementById('dh-compromiso').value = data.compromiso || '';
 
             if (dhSubmitBtn) dhSubmitBtn.textContent = 'Actualizar Director';
         };
@@ -573,7 +600,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 nombre: document.getElementById('dh-nombre').value,
                 pais: document.getElementById('dh-pais').value,
                 fecha_ingreso: document.getElementById('dh-fecha-ingreso').value,
-                fecha_cumple: document.getElementById('dh-fecha-cumple').value
+                fecha_cumple: document.getElementById('dh-fecha-cumple').value,
+                compromiso: document.getElementById('dh-compromiso').value
             };
 
             if (editingDhId) {
@@ -635,6 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${dg.pais}</td>
                     <td>${dg.fecha_ingreso}</td>
                     <td>${dg.fecha_cumple}</td>
+                    <td>${dg.compromiso ? `<a href="${dg.compromiso}" target="_blank">Ver</a>` : 'N/A'}</td>
                     <td>
                         <button class="btn-edit" onclick="editDg(${dg.id})">Editar</button>
                         <button class="btn-delete" onclick="deleteRecord('directiva_general', ${dg.id}, displayDg)">Eliminar</button>
@@ -660,6 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('dg-pais').value = data.pais;
             document.getElementById('dg-fecha-ingreso').value = data.fecha_ingreso;
             document.getElementById('dg-fecha-cumple').value = data.fecha_cumple;
+            document.getElementById('dg-compromiso').value = data.compromiso || '';
 
             if (dgSubmitBtn) dgSubmitBtn.textContent = 'Actualizar en DG';
         };
@@ -672,7 +702,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 cargo: document.getElementById('dg-cargo').value,
                 pais: document.getElementById('dg-pais').value,
                 fecha_ingreso: document.getElementById('dg-fecha-ingreso').value,
-                fecha_cumple: document.getElementById('dg-fecha-cumple').value
+                fecha_cumple: document.getElementById('dg-fecha-cumple').value,
+                compromiso: document.getElementById('dg-compromiso').value
             };
 
             if (editingDgId) {
@@ -688,14 +719,98 @@ document.addEventListener('DOMContentLoaded', () => {
         populateSelect(); window.displayDg();
     }
     // Global variable to store the ID of the report being edited
+    let editingClubInfId = null;
+
+    // --- LÓGICA DE CLUB INF ---
+    const clubInfForm = document.getElementById('club-inf-form');
+    const clubInfSubmitBtn = clubInfForm ? clubInfForm.querySelector('button[type="submit"]') : null;
+    if (clubInfForm) {
+        const tableBody = document.querySelector('#tabla-club-inf tbody');
+
+        window.displayClubInf = async () => {
+            const { data, error } = await supabaseClient.from('club_inf').select('*').order('nombre', { ascending: true });
+            if (error) return console.error("Error cargando Club Inf:", error.message);
+
+            tableBody.innerHTML = '';
+            data?.forEach(member => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${member.nombre}</td>
+                    <td>${member.pais}</td>
+                    <td>${member.fecha_cumple || ''}</td>
+                    <td>${member.compromiso ? `<a href="${member.compromiso}" target="_blank">Ver</a>` : 'N/A'}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editClubInf(${member.id})">Editar</button>
+                        <button class="btn-delete" onclick="deleteRecord('club_inf', ${member.id}, displayClubInf)">Eliminar</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+
+        window.editClubInf = async (id) => {
+            const { data, error } = await supabaseClient.from('club_inf').select('*').eq('id', id).single();
+            if (error) {
+                console.error("Error fetching Club Inf member for edit:", error.message);
+                return;
+            }
+
+            editingClubInfId = id;
+
+            document.getElementById('club-inf-nombre').value = data.nombre;
+            document.getElementById('club-inf-pais').value = data.pais;
+            document.getElementById('club-inf-fecha-cumple').value = data.fecha_cumple;
+            document.getElementById('club-inf-compromiso').value = data.compromiso || '';
+
+            if (clubInfSubmitBtn) clubInfSubmitBtn.textContent = 'Actualizar Miembro';
+        };
+
+        clubInfForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let error;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            const formData = {
+                nombre: document.getElementById('club-inf-nombre').value,
+                pais: document.getElementById('club-inf-pais').value,
+                fecha_cumple: document.getElementById('club-inf-fecha-cumple').value,
+                user_id: user.id,
+                compromiso: document.getElementById('club-inf-compromiso').value
+            };
+
+            if (editingClubInfId) {
+                const { error: updateError } = await supabaseClient
+                    .from('club_inf')
+                    .update(formData)
+                    .eq('id', editingClubInfId);
+                error = updateError;
+            } else {
+                const { error: insertError } = await supabaseClient.from('club_inf').insert([formData]);
+                error = insertError;
+            }
+
+            if (error) {
+                alert("Error al guardar: " + error.message);
+            } else {
+                clubInfForm.reset();
+                editingClubInfId = null;
+                if (clubInfSubmitBtn) clubInfSubmitBtn.textContent = 'Registrar Miembro';
+                window.displayClubInf();
+            }
+        });
+        window.displayClubInf();
+    }
+    // Global variable to store the ID of the report being edited
     let editingReportId = null;
     // --- LÓGICA DE REPORTES ---
     const repForm = document.getElementById('rep-form');
     if (repForm) {
-        const populateRepSelects = async () => {
-            const { data: locs } = await supabaseClient.from('locutores').select('nombre');
-            const { data: mods } = await supabaseClient.from('moderadores').select('nombre');
-            const { data: dhs } = await supabaseClient.from('directores_horario').select('nombre');
+        window.populateRepSelects = async () => {
+            const { data: locs, error: e1 } = await supabaseClient.from('locutores').select('nombre').order('nombre');
+            const { data: mods, error: e2 } = await supabaseClient.from('moderadores').select('nombre').order('nombre');
+            const { data: dhs, error: e3 } = await supabaseClient.from('directores_horario').select('nombre').order('nombre');
+            
+            if (e1 || e2 || e3) console.error("Error cargando listas de selección:", e1 || e2 || e3);
             
             const fill = (id, list) => {
                 const el = document.getElementById(id);
@@ -710,9 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         window.displayReports = async () => {
-            const role = localStorage.getItem('userRole');
             let query = supabaseClient.from('reportes').select('*');
-            if (role !== 'admin') query = query.eq('user_id', localStorage.getItem('currentUser'));
             
             const { data, error } = await query.order('fecha', { ascending: false });
             if (error) return console.error("Error cargando reportes:", error.message);
@@ -721,8 +834,9 @@ document.addEventListener('DOMContentLoaded', () => {
             data?.forEach(r => {
                 tbody.innerHTML += `<tr>
                     <td>${r.fecha}</td><td>${r.director}</td><td>${r.estuvo} ${r.cubrio ? '('+r.cubrio+')' : ''}</td>
-                    <td>1h: ${r.loc1}<br>2h: ${r.loc2}</td>
-                    <td>C: ${r.chat}<br>R: ${r.redes}</td>
+                    <td>1ra Hora: ${r.loc1}<br>2da Hora: ${r.loc2}</td>
+                    <td>W: ${r.whatsapp}<br>C: ${r.chat}<br>R: ${r.redes}</td>
+                    <td>${r.compromiso ? `<a href="${r.compromiso}" target="_blank">Ver</a>` : 'N/A'}</td>
                     <td>
                         <button class="btn-edit" onclick="editReport(${r.id})">Editar</button>
                         <button class="btn-delete" onclick="deleteRecord('reportes', ${r.id}, displayReports)">Eliminar</button>
@@ -764,6 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('rep-whatsapp').value = data.whatsapp;
             document.getElementById('rep-chat').value = data.chat;
             document.getElementById('rep-redes').value = data.redes;
+            document.getElementById('rep-compromiso').value = data.compromiso || '';
 
             document.querySelector('#rep-form button[type="submit"]').textContent = 'Actualizar Reporte';
         };
@@ -834,7 +949,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('rep-mes').addEventListener('change', updateCalculo);
         document.querySelectorAll('input[name="rep-dia"]').forEach(cb => cb.addEventListener('change', updateCalculo));
 
-        populateRepSelects(); window.displayReports();
     }
 
     // --- LÓGICA DE USUARIOS (ADMIN) ---
@@ -879,28 +993,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
             const processData = (data, type) => {
-                data.forEach(row => {
+                data?.forEach(row => { // Use optional chaining in case data is null
+                    // Process for countries
                     if (row.pais) {
-                        if (!countries[row.pais]) countries[row.pais] = { total: 0, moderadores: 0, locutores: 0, dh: 0, personas: [] };
-                        countries[row.pais][type]++;
+                        if (!countries[row.pais]) {
+                            countries[row.pais] = { 
+                                total: 0, 
+                                moderadores: 0, 
+                                locutores: 0, 
+                                dh: 0, 
+                                club_inf: 0, // Add club_inf here
+                                personas: [] 
+                            };
+                        }
+                        // Increment the specific category count and total count
+                        countries[row.pais][type]++; 
                         countries[row.pais].total++;
                         countries[row.pais].personas.push({ nombre: row.nombre, cargo: type });
                     }
+                    // Process for birthdays
                     if (row.fecha_cumple) {
                         const dateObj = new Date(row.fecha_cumple + 'T00:00:00');
                         const m = dateObj.getMonth();
-                        monthsBirth[m].push({ nombre: row.nombre, dia: dateObj.getDate() });
+                        monthsBirth[m].push({ nombre: row.nombre, dia: dateObj.getDate(), cargo: type });
                     }
+                    // Process for anniversaries (club_inf members don't have fecha_ingreso)
                     if (row.fecha_ingreso) {
                         const dateObj = new Date(row.fecha_ingreso + 'T00:00:00');
                         const m = dateObj.getMonth();
-                        monthsAnniv[m].push({ nombre: row.nombre, dia: dateObj.getDate() });
+                        monthsAnniv[m].push({ nombre: row.nombre, dia: dateObj.getDate(), cargo: type });
                     }
                 });
             };
 
             const { data: mods } = await supabaseClient.from('moderadores').select('nombre, pais, fecha_cumple, fecha_ingreso');
             if (mods) processData(mods, 'moderadores');
+            
+            const { data: clubInfMembers } = await supabaseClient.from('club_inf').select('nombre, pais, fecha_cumple');
+            if (clubInfMembers) processData(clubInfMembers, 'club_inf');
 
             const { data: locs } = await supabaseClient.from('locutores').select('nombre, pais, fecha_cumple, fecha_ingreso');
             if (locs) processData(locs, 'locutores');
@@ -919,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 paisesHtml += `
                     <div class="stat-item-complex" style="cursor:pointer;" onclick="alert('Integrantes en ${name.replace(/'/g, "\\'")}:\\n\\n${listaNombres}')">
                         <div class="stat-main"><span>${name}</span><strong>${s.total}</strong></div>
-                        <div class="stat-sub">Mods: ${s.moderadores} | Locs: ${s.locutores} | DH: ${s.dh}</div>
+                        <div class="stat-sub">Mods: ${s.moderadores} | Locs: ${s.locutores} | DH: ${s.dh} | Club Inf: ${s.club_inf}</div>
                     </div>`;
             });
             statsPaises.innerHTML = paisesHtml || 'No hay datos.';
@@ -930,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (list.length > 0) {
                     const listaNombres = list
                         .sort((a, b) => a.dia - b.dia)
-                        .map(p => `- Día ${p.dia}: ${p.nombre}`)
+                        .map(p => `- Día ${p.dia}: ${p.nombre} (${p.cargo})`)
                         .join('\\n')
                         .replace(/'/g, "\\'");
                     cumplesHtml += `<div class="stat-item" style="cursor:pointer;" onclick="alert('Cumpleaños en ${monthNames[i]}:\\n\\n${listaNombres}')"><span>${monthNames[i]}</span><strong>${list.length}</strong></div>`;
@@ -956,10 +1086,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- LÓGICA DE DESCARGA PDF UNIVERSAL ---
-    // Buscamos ambos posibles IDs de botón (el de DH y el de Moderadores/Locutores)
-    const downloadBtn = document.getElementById('btn-download') || document.getElementById('btn-download-dh');
-    
-    if (downloadBtn) {
+    // Seleccionar todos los botones que comiencen con 'btn-download'
+    document.querySelectorAll('[id^="btn-download"]').forEach(downloadBtn => {
         downloadBtn.addEventListener('click', () => {
             const jsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
             if (!jsPDF) {
@@ -994,6 +1122,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterId = 'filter-categoria-loc';
                 fileName = 'Locutores';
                 titleText = 'Locutores';
+            } else if (document.getElementById('tabla-club-inf')) {
+                tableId = '#tabla-club-inf';
+                fileName = 'ClubInf';
+                titleText = 'Miembros Club Inf.';
+            } else if (document.getElementById('tabla-dg')) {
+                tableId = '#tabla-dg';
+                fileName = 'Directiva';
+                titleText = 'Directiva General';
+            } else if (document.getElementById('tabla-reportes')) {
+                tableId = '#tabla-reportes';
+                fileName = 'Reportes';
+                titleText = 'Historial de Reportes';
             }
 
             const table = document.querySelector(tableId);
@@ -1001,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("No hay datos en la tabla para descargar.");
                 return;
             }
-
+            
             const filterVal = document.getElementById(filterId)?.value || 'all';
             const finalTitle = filterVal === 'all' ? `Reporte General: ${titleText}` : `Reporte ${titleText}: ${filterVal}`;
 
@@ -1022,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             doc.save(`${fileName}_${filterVal.replace(/\s+/g, '_')}.pdf`);
         });
-    }
+    });
 
     // --- LÓGICA DE CERTIFICADOS ---
     const certForm = document.getElementById('cert-form');
@@ -1451,6 +1591,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         displayRecognitions();
+    }
+
+    // EJECUCIÓN FINAL: Verificar sesión una vez que todas las funciones y elementos están listos
+    if (supabaseClient) {
+        checkSession();
     }
 });
 
