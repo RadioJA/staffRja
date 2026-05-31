@@ -963,19 +963,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data, error } = await supabaseClient.from('profiles').select('*').order('nombre', { ascending: true });
             if (error) return console.error(error);
 
+            const currentUserId = localStorage.getItem('currentUser');
             userTableBody.innerHTML = '';
             data.forEach(user => {
                 const row = document.createElement('tr');
+                const isSelf = user.id === currentUserId;
                 row.innerHTML = `
                     <td>${user.nombre}</td>
                     <td>${user.email}</td>
                     <td>
-                        <select onchange="updateUserRole('${user.id}', this.value)">
+                        <select onchange="updateUserRole('${user.id}', this.value)" ${isSelf ? 'disabled' : ''}>
                             <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
                             <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
                         </select>
                     </td>
                     <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>
+                        ${!isSelf ? `<button class="btn-delete" onclick="deleteRecord('profiles', '${user.id}', displayUsers)">Eliminar</button>` : '<em>(Tú)</em>'}
+                    </td>
                 `;
                 userTableBody.appendChild(row);
             });

@@ -2,10 +2,26 @@
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   nombre TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  role TEXT CHECK (role IN ('admin', 'user')) DEFAULT 'user',
+  email TEXT,
+  "role" TEXT CHECK ("role" IN ('admin', 'user')) DEFAULT 'user',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ELIMINACIÓN DE RESTRICCIONES DE EMAIL: El email ya es único en auth.users.
+-- Mantenerlo único aquí causa errores si se intenta reutilizar un correo de un usuario borrado.
+-- Limpieza profunda de restricciones que podrían causar el error 500.
+DROP INDEX IF EXISTS public.profiles_email_key;
+DROP INDEX IF EXISTS profiles_email_key;
+DROP INDEX IF EXISTS profiles_email_idx;
+DROP INDEX IF EXISTS public.profiles_email_unique;
+
+-- Asegurar flexibilidad en la tabla de perfiles
+-- Ejecutamos individualmente para evitar que un fallo en uno detenga a los demás
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_email_key;
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_email_unique;
+ALTER TABLE public.profiles ALTER COLUMN email DROP NOT NULL;
+ALTER TABLE public.profiles ALTER COLUMN nombre SET DEFAULT 'Usuario Nuevo';
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_email_key1;
 
 -- 2. Tabla de Moderadores
 CREATE TABLE IF NOT EXISTS moderadores (
@@ -145,17 +161,31 @@ ALTER TABLE public.user_recognitions ENABLE ROW LEVEL SECURITY;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, nombre, email, role)
+  INSERT INTO public.profiles (id, nombre, email, "role")
   VALUES (
-    NEW.id, 
-    COALESCE(NEW.raw_user_meta_data->>'nombre', 'Usuario Nuevo'), 
-    NEW.email,
-    CASE WHEN NEW.email = 'ministrylion@gmail.com' THEN 'admin' ELSE 'user' END
-  );
+    NEW.id,
+    -- Usamos el nombre de los metadatos, o la parte anterior al @ del email, o 'Usuario' por defecto
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'nombre', ''), split_part(NEW.email, '@', 1), 'Usuario'), 
+    LOWER(COALESCE(NEW.email, '')),
+    CASE WHEN LOWER(NEW.email) = 'ministrylion@gmail.com' THEN 'admin' ELSE 'user' END
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    nombre = COALESCE(NULLIF(EXCLUDED.nombre, ''), profiles.nombre),
+    email = COALESCE(EXCLUDED.email, profiles.email),
+    "role" = CASE 
+               WHEN LOWER(NEW.email) = 'ministrylion@gmail.com' THEN 'admin' 
+               ELSE profiles."role" 
+             END;
+
+  RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+  -- IMPORTANTE: Si falla la creación del perfil, permitimos que el usuario 
+  -- se cree en Auth para no bloquear el acceso (Evita el Error 500).
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
+DROP TRIGGER IF EXISTS on_auth_user_created_create_profile ON auth.users;
 CREATE OR REPLACE TRIGGER on_auth_user_created_create_profile
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
@@ -182,7 +212,7 @@ DROP FUNCTION IF EXISTS is_admin() CASCADE;
 -- Se usa SECURITY DEFINER para que la función tenga permisos de lectura sobre la tabla profiles
 CREATE OR REPLACE FUNCTION is_admin() 
 RETURNS BOOLEAN AS $$
-  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin');
+  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND "role" = 'admin');
 $$ LANGUAGE sql SECURITY DEFINER;
 
 CREATE POLICY "Select_Policy_profiles" ON profiles FOR SELECT USING (auth.role() = 'authenticated');
@@ -313,5 +343,5 @@ CREATE POLICY "Delete_Policy_club_inf" ON public.club_inf FOR DELETE USING (is_a
 -- RECTIFICACIÓN MANUAL: Asegurar que el admin principal tenga el rol correcto
 -- Ejecuta esto para actualizar tu usuario actual si ya existe
 UPDATE public.profiles 
-SET role = 'admin' 
+SET "role" = 'admin' 
 WHERE email = 'ministrylion@gmail.com';
